@@ -6,10 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/kali/university/os/os.ex2/main.cpp
-stdio.h
--
-
 /home/kali/university/os/os.ex2/uthreads.cpp
 stdio.h
 -
@@ -24,6 +20,8 @@ sys/time.h
 deque
 -
 iostream
+-
+algorithm
 -
 uthreads.h
 /home/kali/university/os/os.ex2/uthreads.h

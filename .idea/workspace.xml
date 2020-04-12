@@ -12,7 +12,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd6b1afd-eea0-4546-893f-9429954e78c0" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/kali.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/uthreads.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/uthreads.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -36,6 +38,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
@@ -63,7 +66,7 @@
       <updated>1586688350486</updated>
       <workItem from="1586688354818" duration="12512000" />
       <workItem from="1586702375966" duration="2023000" />
-      <workItem from="1586710546767" duration="8623000" />
+      <workItem from="1586710546767" duration="14513000" />
     </task>
     <servers />
   </component>
@@ -79,22 +82,22 @@
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
     <state x="693" y="306" width="534" height="507" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.31.1920.1049@0.31.1920.1049" timestamp="1586689574213" />
-    <state width="1872" height="276" key="GridCell.Tab.0.bottom" timestamp="1586689630369">
+    <state width="1872" height="275" key="GridCell.Tab.0.bottom" timestamp="1586726889228">
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
-    <state width="1872" height="276" key="GridCell.Tab.0.bottom/0.31.1920.1049@0.31.1920.1049" timestamp="1586689630369" />
-    <state width="1872" height="276" key="GridCell.Tab.0.center" timestamp="1586689630366">
+    <state width="1872" height="275" key="GridCell.Tab.0.bottom/0.31.1920.1049@0.31.1920.1049" timestamp="1586726889228" />
+    <state width="1872" height="275" key="GridCell.Tab.0.center" timestamp="1586726889223">
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
-    <state width="1872" height="276" key="GridCell.Tab.0.center/0.31.1920.1049@0.31.1920.1049" timestamp="1586689630366" />
-    <state width="1872" height="276" key="GridCell.Tab.0.left" timestamp="1586689630364">
+    <state width="1872" height="275" key="GridCell.Tab.0.center/0.31.1920.1049@0.31.1920.1049" timestamp="1586726889223" />
+    <state width="1872" height="275" key="GridCell.Tab.0.left" timestamp="1586726889222">
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
-    <state width="1872" height="276" key="GridCell.Tab.0.left/0.31.1920.1049@0.31.1920.1049" timestamp="1586689630364" />
-    <state width="1872" height="276" key="GridCell.Tab.0.right" timestamp="1586689630366">
+    <state width="1872" height="275" key="GridCell.Tab.0.left/0.31.1920.1049@0.31.1920.1049" timestamp="1586726889222" />
+    <state width="1872" height="275" key="GridCell.Tab.0.right" timestamp="1586726889223">
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
-    <state width="1872" height="276" key="GridCell.Tab.0.right/0.31.1920.1049@0.31.1920.1049" timestamp="1586689630366" />
+    <state width="1872" height="275" key="GridCell.Tab.0.right/0.31.1920.1049@0.31.1920.1049" timestamp="1586726889223" />
     <state x="607" y="385" key="com.intellij.ide.util.TipDialog" timestamp="1586702377249">
       <screen x="0" y="31" width="1920" height="1049" />
     </state>

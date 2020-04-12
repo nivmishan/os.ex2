@@ -3,6 +3,7 @@
 
 CMakeFiles/os_ex2.dir/main.cpp.o
  /home/kali/university/os/os.ex2/main.cpp
+ /home/kali/university/os/os.ex2/uthreads.h
 CMakeFiles/os_ex2.dir/uthreads.cpp.o
  /home/kali/university/os/os.ex2/uthreads.cpp
  /home/kali/university/os/os.ex2/uthreads.h
