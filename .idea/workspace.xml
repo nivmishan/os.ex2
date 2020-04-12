@@ -12,8 +12,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd6b1afd-eea0-4546-893f-9429954e78c0" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/kali.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main" beforeDir="false" afterPath="$PROJECT_DIR$/main" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/uthreads.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/uthreads.cpp" afterDir="false" />
     </list>
@@ -66,7 +66,7 @@
       <updated>1586688350486</updated>
       <workItem from="1586688354818" duration="12512000" />
       <workItem from="1586702375966" duration="2023000" />
-      <workItem from="1586710546767" duration="14513000" />
+      <workItem from="1586710546767" duration="16250000" />
     </task>
     <servers />
   </component>
@@ -102,9 +102,9 @@
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
     <state x="607" y="385" key="com.intellij.ide.util.TipDialog/0.31.1920.1049@0.31.1920.1049" timestamp="1586702377249" />
-    <state x="623" y="263" width="672" height="678" key="search.everywhere.popup" timestamp="1586714305450">
+    <state x="623" y="263" width="672" height="678" key="search.everywhere.popup" timestamp="1586728655699">
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
-    <state x="623" y="263" width="672" height="678" key="search.everywhere.popup/0.31.1920.1049@0.31.1920.1049" timestamp="1586714305450" />
+    <state x="623" y="263" width="672" height="678" key="search.everywhere.popup/0.31.1920.1049@0.31.1920.1049" timestamp="1586728655699" />
   </component>
 </project>

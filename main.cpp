@@ -9,6 +9,7 @@ void f(void) {
     int i;
 
     for (i=0; i<30; ++i) {
+        std::cout << "~f("<<i<<")\n";
 
         ticks1=clock();
         ticks2=ticks1;
@@ -17,9 +18,12 @@ void f(void) {
             ticks2=clock();
 
 
-        std::cout << "f=" << i <<  '|' << uthread_get_quantums(uthread_get_tid()) << std::endl;
+
+        std::cout << "~f<\n";
+        std::cout << "~f<<" << i << "\n";
 
     }
+    std::cout << "f~fucking shit\n";
 }
 
 void g(void) {
@@ -29,6 +33,8 @@ void g(void) {
     int i;
 
     for (i=0; i<30; ++i) {
+        std::cout << "~g("<<i<<")\n";
+
 
         ticks1=clock();
         ticks2=ticks1;
@@ -37,9 +43,11 @@ void g(void) {
             ticks2=clock();
 
 
-        std::cout << "g=" << i <<  '|' << uthread_get_quantums(uthread_get_tid()) << std::endl;
+        std::cout << "~g<\n";
+        std::cout << "~g<<"<<i<<"\n";
 
     }
+    std::cout << "g~fucking shit\n";
 }
 
 int main() {
