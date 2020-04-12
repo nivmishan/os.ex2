@@ -1,0 +1,3 @@
+/home/kali/university/os/os.ex2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/kali/university/os/os.ex2/cmake-build-debug/CMakeFiles/os_ex2.dir
+/home/kali/university/os/os.ex2/cmake-build-debug/CMakeFiles/edit_cache.dir

@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/kali/university/os/os.ex2/main.cpp
+stdio.h
+-
+
+/home/kali/university/os/os.ex2/uthreads.cpp
+stdio.h
+-
+setjmp.h
+-
+signal.h
+-
+unistd.h
+-
+sys/time.h
+-
+deque
+-
+iostream
+-
+uthreads.h
+/home/kali/university/os/os.ex2/uthreads.h
+
+/home/kali/university/os/os.ex2/uthreads.h
+
