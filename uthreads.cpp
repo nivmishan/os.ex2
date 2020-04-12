@@ -5,8 +5,11 @@
 #include <sys/time.h>
 #include <deque>
 #include <iostream>
+#include <algorithm>
 
 #include "uthreads.h"
+
+#define JMP_RET_VAL 1
 
 #ifdef __x86_64__
 /* code for 64 bit Intel arch */
@@ -64,7 +67,9 @@ typedef uthread_instance* uthread_instance_ptr;
 
 uthread_instance_ptr existing_threads[MAX_THREAD_NUM] = {nullptr};
 
-std::deque<int> ready_uthreads_tid;
+struct itimerval timer = {0};
+
+std::deque<int> ready_queue;
 int running_uthread_tid;
 
 int* priorities_quantum_usecs;
@@ -94,27 +99,88 @@ int get_free_tid() {
     return -1;
 }
 
+/* Decrease quantum count of given thread */
+void decrease_quantum_count(int tid) {
+    existing_threads[tid]->quantum_count++;
+    total_quantum_count++;
+}
+
 /* Returns true if thread with the given ID as tid exist */
-bool uthread_exist(int tid) {
+bool is_uthread_exist(int tid) {
     if (tid == 0)
         return true;
     return existing_threads[tid] != nullptr;
 }
 
-void witch_running_thread()
+/* insert ID from ready queue by given tid */
+void push_to_ready_queue(int tid) {
+    ready_queue.push_back(tid);
+}
 
-void insert_to_ready_queue(int tid); // Change the state of thread to ready and
-                                     // insert it to the queue
+/* Remove ID from ready queue by given tid */
+void remove_from_ready_queue(int tid) {
+    ready_queue.erase(std::remove(ready_queue.begin(), ready_queue.end(), tid), ready_queue.end());
+}
 
-void remove_from_ready_queue(int tid);
+/* Pop and return the front of the ready queue */
+int pop_from_ready_queue() {
+    int val = ready_queue.front();
+    ready_queue.pop_front();
+    return val;
+}
 
-void free_uthread_resources(int tid); // free all the uthread resources
+/* Return true if ready queue is empty, false otherwise */
+bool is_ready_queue_empty() {
+    return ready_queue.empty();
+}
 
-void uthread_scheduler(); // ?
+/* If ready queue isn't empty run the next ready thread. */
+void run_next_ready_thread() {
+    int next_tid;
+    uthread_instance_ptr ut;
 
-void decrease_quantum_count(int tid) {
-    existing_threads[tid]->quantum_count++;
-    total_quantum_count++;
+    // switch threads only if ready queue isn't empty
+    if (!is_ready_queue_empty()) {
+        next_tid = pop_from_ready_queue();
+
+        ut = existing_threads[next_tid]; // thread instance
+
+        // run next thread
+        ut->state = RUNNING;
+        running_uthread_tid = next_tid;
+
+        // set virtual timer values
+        timer.it_value.tv_usec = priorities_quantum_usecs[ut->priority];
+        // start a virtual timer
+        if (setitimer(ITIMER_VIRTUAL, &timer, NULL))
+            print_error("setitimer error", SYS_ERR);
+
+        // jump to next thread
+        decrease_quantum_count(ut->tid);
+        siglongjmp(ut->env, JMP_RET_VAL);
+    }
+}
+
+void uthread_timing_scheduler(int sig) {
+    uthread_instance_ptr ut;
+
+    if (!is_ready_queue_empty()) {
+        ut = existing_threads[running_uthread_tid];
+        ut->state = READY;
+        push_to_ready_queue(ut->tid);
+        if (sigsetjmp(ut->env, 1) == 0)
+            run_next_ready_thread();
+    }
+}
+
+/* Terminates the running uthread */
+void terminate_running_thread(int sig) {
+    uthread_terminate(running_uthread_tid);
+}
+
+/* Block the running uthread */
+void block_running_thread(int sig) {
+    uthread_block(running_uthread_tid);
 }
 
 
@@ -127,11 +193,69 @@ void decrease_quantum_count(int tid) {
  * size - is the size of the array.
  * Return value: On success, return 0. On failure, return -1.
 */
-int uthread_init(int *quantum_usecs, int size);
-// init priorities_quantum_usecs & priorities_amount
-// connecting signals to functions
-// init data to null/0
-// save data of thread 0
+int uthread_init(int *quantum_usecs, int size) {
+    sigset_t set;
+    struct sigaction sa = {0};
+    uthread_instance_ptr ut;
+
+    for (int i=0; i<size; ++i) {
+        if (quantum_usecs[i] <= 0) {
+            print_error("quantum_usecs should contain non-positive integers only", LIB_ERR);
+            return -1;
+        }
+    }
+
+    // save quantum usecs
+    priorities_quantum_usecs = quantum_usecs;
+
+    // connect signals to terminate_running_thread
+    sigfillset(&sa.sa_mask);
+    sa.sa_handler = &terminate_running_thread;
+    if (sigaction(SIGINT, &sa,NULL) < 0) {
+        print_error("sigaction error", SYS_ERR);
+    }
+    if (sigaction(SIGQUIT, &sa,NULL) < 0) {
+        print_error("sigaction error", SYS_ERR);
+    }
+
+    // connect signals to terminate_running_thread
+    sigfillset(&sa.sa_mask);
+    sa.sa_handler = &block_running_thread;
+    if (sigaction(SIGTSTP, &sa,NULL) < 0) {
+        print_error("sigaction error", SYS_ERR);
+    }
+
+    // connect signals to terminate_running_thread
+    sigfillset(&sa.sa_mask);
+    sa.sa_handler = &uthread_timing_scheduler;
+    if (sigaction(SIGVTALRM, &sa,NULL) < 0) {
+        print_error("sigaction error", SYS_ERR);
+    }
+
+    // save main thread
+    // allocate new memory for uthread_instance
+    ut = new (std::nothrow) uthread_instance;
+    if (ut == nullptr) {
+        print_error("can't allocate new memory.", SYS_ERR);
+        return -1;
+    }
+
+    // initialize tid
+    ut->tid = 0;
+    // initialize priority
+    ut->priority = 0;
+    // initialize state
+    ut->state = RUNNING;
+
+    // initialize quantum_count and total_quantum_count
+    ut->quantum_count = 1;
+    total_quantum_count = 1;
+
+    // other initializations
+    existing_threads[ut->tid] = ut; // add to existing threads
+
+    return 0;
+}
 
 /*
  * Description: This function creates a new thread, whose entry point is the
@@ -147,6 +271,7 @@ int uthread_init(int *quantum_usecs, int size);
 int uthread_spawn(void (*f)(void), int priority) {
     int tid;
     address_t sp, pc;
+    uthread_instance_ptr ut;
 
     // check if threads amount is over the limit
     tid = get_free_tid();
@@ -156,7 +281,7 @@ int uthread_spawn(void (*f)(void), int priority) {
     }
 
     // allocate new memory for uthread_instance
-    uthread_instance_ptr ut = new (std::nothrow) uthread_instance;
+    ut = new (std::nothrow) uthread_instance;
     if (ut == nullptr) {
         print_error("can't allocate new memory.", SYS_ERR);
         return -1;
@@ -188,7 +313,7 @@ int uthread_spawn(void (*f)(void), int priority) {
 
     // other initializations
     existing_threads[ut->tid] = ut; // add to existing threads
-    insert_to_ready_queue(ut->tid); // inert to ready queue
+    push_to_ready_queue(ut->tid); // inert to ready queue
 }
 
 /*
@@ -198,7 +323,7 @@ int uthread_spawn(void (*f)(void), int priority) {
  * Return value: On success, return 0. On failure, return -1.
 */
 int uthread_change_priority(int tid, int priority) {
-    if (!uthread_exist(tid)) {
+    if (!is_uthread_exist(tid)) {
         print_error("thread with the given ID doesn't exist", LIB_ERR);
         return -1;
     }
@@ -219,7 +344,7 @@ int uthread_change_priority(int tid, int priority) {
  * thread is terminated, the function does not return.
 */
 int uthread_terminate(int tid) {
-    if (!uthread_exist(tid)) {
+    if (!is_uthread_exist(tid)) {
         print_error("thread with the given ID doesn't exist", LIB_ERR);
         return -1;
     }
@@ -268,7 +393,7 @@ int uthread_block(int tid) {
         print_error("can't block main thread!", LIB_ERR);
         return -1;
     }
-    if (!uthread_exist(tid)) {
+    if (!is_uthread_exist(tid)) {
         print_error("thread with the given ID doesn't exist", LIB_ERR);
         return -1;
     }
@@ -276,16 +401,20 @@ int uthread_block(int tid) {
     uthread_instance_ptr ut = existing_threads[tid]; // uthread instance
     uthread_state old_state = ut->state; // old thread ID
 
+    // change thread state to BLOCKED
     ut->state = BLOCKED;
 
+    // if old state is READY, pop from ready queue
     if (old_state == READY)
-        remove_from_ready_queue(tid)
+        remove_from_ready_queue(tid);
 
+    // if the current running thread is blocked save its environment
     if (old_state == RUNNING)
+        if (sigsetjmp(ut->env, 1) == 0)
+            run_next_ready_thread();
 
     return 0;
 }
-// errors: tid not exist or tid==0
 
 
 /*
@@ -295,7 +424,22 @@ int uthread_block(int tid) {
  * ID tid exists it is considered an error.
  * Return value: On success, return 0. On failure, return -1.
 */
-int uthread_resume(int tid);
+int uthread_resume(int tid){
+    if (!is_uthread_exist(tid)) {
+        print_error("thread with the given ID doesn't exist", LIB_ERR);
+        return -1;
+    }
+
+    uthread_instance_ptr ut = existing_threads[tid]; // uthread instance
+
+    // change only if BLOCKED
+    if (ut->state == BLOCKED) {
+        ut->state = READY;
+        push_to_ready_queue(tid);
+    }
+
+    return 0;
+}
 
 
 /*
@@ -331,7 +475,7 @@ int uthread_get_total_quantums() {
  * 			     On failure, return -1.
 */
 int uthread_get_quantums(int tid) {
-    if (!uthread_exist(tid))
+    if (!is_uthread_exist(tid))
         return -1;
     return existing_threads[tid]->quantum_count;
 }
