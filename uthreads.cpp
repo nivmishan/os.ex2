@@ -1,7 +1,5 @@
-#include <stdio.h>
 #include <setjmp.h>
 #include <signal.h>
-#include <unistd.h>
 #include <sys/time.h>
 #include <deque>
 #include <iostream>
@@ -158,7 +156,7 @@ void start_quantum_timer(uthread_instance_ptr ut) {
     timer.it_value.tv_usec = priorities_quantum_usecs[ut->priority];
 
     // start a virtual timer
-    if (setitimer(ITIMER_VIRTUAL, &timer, NULL))
+    if (setitimer(ITIMER_VIRTUAL, &timer, nullptr))
         print_error("setitimer error", SYS_ERR);
 
     // jump to next thread
@@ -250,22 +248,22 @@ int uthread_init(int *quantum_usecs, int size) {
 
     // connect signals to terminate_running_thread
     sa.sa_handler = &terminate_running_thread;
-    if (sigaction(SIGINT, &sa,NULL) < 0) {
+    if (sigaction(SIGINT, &sa,nullptr) < 0) {
         print_error("sigaction error", SYS_ERR);
     }
-    if (sigaction(SIGQUIT, &sa,NULL) < 0) {
+    if (sigaction(SIGQUIT, &sa,nullptr) < 0) {
         print_error("sigaction error", SYS_ERR);
     }
 
     // connect signals to terminate_running_thread
     sa.sa_handler = &block_running_thread;
-    if (sigaction(SIGTSTP, &sa,NULL) < 0) {
+    if (sigaction(SIGTSTP, &sa,nullptr) < 0) {
         print_error("sigaction error", SYS_ERR);
     }
 
     // connect signals to terminate_running_thread
     sa.sa_handler = &uthread_timing_scheduler;
-    if (sigaction(SIGVTALRM, &sa,NULL) < 0) {
+    if (sigaction(SIGVTALRM, &sa,nullptr) < 0) {
         print_error("sigaction error", SYS_ERR);
     }
 
@@ -312,9 +310,14 @@ int uthread_init(int *quantum_usecs, int size) {
 */
 int uthread_spawn(void (*f)(void), int priority) {
     std::cout << "uthread_spawn\n";
+
     int tid;
     address_t sp, pc;
     uthread_instance_ptr ut;
+
+    sigset_t set, oldset;
+    sigfillset(&set);
+    sigprocmask(SIG_SETMASK, &set, &oldset);
 
     // check if threads amount is over the limit
     tid = get_free_tid();
@@ -352,6 +355,8 @@ int uthread_spawn(void (*f)(void), int priority) {
     existing_threads[ut->tid] = ut; // add to existing threads
     push_to_ready_queue(ut->tid); // inert to ready queue
 
+    sigprocmask(SIG_SETMASK, &oldset, nullptr);
+
     return 0;
 }
 
@@ -371,7 +376,6 @@ int uthread_change_priority(int tid, int priority) {
     return 0;
 }
 
-
 /*
  * Description: This function terminates the thread with ID tid and deletes
  * it from all relevant control structures. All the resources allocated by
@@ -385,6 +389,11 @@ int uthread_change_priority(int tid, int priority) {
 */
 int uthread_terminate(int tid) {
     std::cout << "uthread_terminate\n";
+
+    sigset_t set, oldset;
+    sigfillset(&set);
+    sigprocmask(SIG_SETMASK, &set, &oldset);
+
     if (!is_uthread_exist(tid)) {
         print_error("thread with the given ID doesn't exist", LIB_ERR);
         return -1;
@@ -416,6 +425,8 @@ int uthread_terminate(int tid) {
     if (state == RUNNING)
         run_next_ready_thread();
 
+    sigprocmask(SIG_SETMASK, &oldset, nullptr);
+
     return 0;
 }
 
@@ -431,6 +442,11 @@ int uthread_terminate(int tid) {
 */
 int uthread_block(int tid) {
     std::cout << "uthread_block\n";
+
+    sigset_t set, oldset;
+    sigfillset(&set);
+    sigprocmask(SIG_SETMASK, &set, &oldset);
+
     if (tid == 0) {
         print_error("can't block main thread!", LIB_ERR);
         return -1;
@@ -455,6 +471,8 @@ int uthread_block(int tid) {
         if (sigsetjmp(ut->env, 1) == 0)
             run_next_ready_thread();
 
+    sigprocmask(SIG_SETMASK, &oldset, nullptr);
+
     return 0;
 }
 
@@ -468,6 +486,11 @@ int uthread_block(int tid) {
 */
 int uthread_resume(int tid){
     std::cout << "uthread_resume\n";
+
+    sigset_t set, oldset;
+    sigfillset(&set);
+    sigprocmask(SIG_SETMASK, &set, &oldset);
+
     if (!is_uthread_exist(tid)) {
         print_error("thread with the given ID doesn't exist", LIB_ERR);
         return -1;
@@ -481,6 +504,7 @@ int uthread_resume(int tid){
         push_to_ready_queue(tid);
     }
 
+    sigprocmask(SIG_SETMASK, &oldset, nullptr);
     return 0;
 }
 

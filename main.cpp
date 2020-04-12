@@ -23,6 +23,9 @@ void f(void) {
         std::cout << "~f<<" << i << "\n";
 
     }
+
+    uthread_terminate(uthread_get_tid());
+
     std::cout << "f~fucking shit\n";
 }
 
@@ -47,6 +50,9 @@ void g(void) {
         std::cout << "~g<<"<<i<<"\n";
 
     }
+
+    uthread_terminate(uthread_get_tid());
+
     std::cout << "g~fucking shit\n";
 }
 
