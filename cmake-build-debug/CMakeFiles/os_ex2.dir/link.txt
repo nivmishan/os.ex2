@@ -1,1 +1,0 @@
-/usr/bin/c++  -g   CMakeFiles/os_ex2.dir/main.cpp.o CMakeFiles/os_ex2.dir/uthreads.cpp.o  -o os_ex2 

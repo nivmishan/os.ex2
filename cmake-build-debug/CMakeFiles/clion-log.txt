@@ -1,4 +1,10 @@
-/opt/clion-2019.3.5/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/kali/university/os/os.ex2
--- Configuring done
--- Generating done
--- Build files have been written to: /home/kali/university/os/os.ex2/cmake-build-debug
+C:\Users\PC\.CLion2019.3\system\cygwin_cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" "\"C:/Users/PC/Google Drive/חבצ/סמסטר ד/OS/ex2\""
+CMake Error: The source directory "/cygdrive/c/Users/PC/Google Drive/׳—׳‘׳¦/׳¡׳�׳¡׳˜׳¨ ׳“/OS/ex2/cmake-build-debug/"/"C:/Users/PC/Google Drive/׳—׳‘׳¦/׳¡׳�׳¡׳˜׳¨ ׳“/OS/ex2/""" does not exist.
+Specify --help for usage, or press the help button on the CMake GUI.
+
+CMake Error:
+  ------------------------------------------------------------------------------------
+  Selected CMake might be incompatible with the Cygwin environment.
+  In order to run on Cygwin, CMake needs to be specially compiled.
+  Please select either CMake bundled with CLion or CMake from the Cygwin installation.
+  ------------------------------------------------------------------------------------

@@ -1,0 +1,68 @@
+hadar.mizrachi, nivmishan
+Hadar Mizrachi (211601919), Niv Mishan (315221176)
+EX: 2
+
+FILES:
+Makefile     -- the project's Makefile
+uthreads.cpp -- uthreads library implementation.
+README       -- this file.
+
+
+ANSWERS:
+
+Question 1
+-----------
+When we want to do several calculations in parallel, when each calculation use
+another calculation data, and none of the calculation needs the OS (what means
+that the process will not go into BLOCK state by any of the calculations), and
+we want to give each calculation different quantum time (by the calculation
+hardness), we will use user-level threads. We will give each calculation
+different thread with different quantum time. That because in user-level threads
+the calculations can share the same memory, and therefore each calculation can
+use all the other calculations data. Also, the overhead of switching between the
+calculations threads is minimal in relation to the usage of kernel-level
+threads.
+
+Question 2
+-----------
+The advantages and disadvantages of using processes for each tab in google
+chrome are:
+
+Advantage 1#. If the user (or any other program, or even the tab itself)
+              terminate the tab, not all the other tabs being closed.
+Advantage 2#. The memory of each tab does not affect by the actions of the other
+              tabs.
+Advantage 3#. (Only over user-level threads) If one tab is stuck or blocked by
+              the OS, not all the other tabs are blocked.
+
+Disadvantage 1#. High overhead - switching between the operation of each tab (on
+                 another process) have high overhead.
+Disadvantage 2#. Each process has its own memory, so all the tabs together take
+                 a lot of RAM space.
+
+Question 3
+-----------
+When we writing to the shell, the keyboard (I/O device) sending an interrupt to
+the processor, for each keystroke, that there is new information from the
+keyboard. The processor looks at the interrupt vector table, finds that OS
+handler for the interrupt and executes that OS handler. Then, when the OS read
+the new keystroke it passes the data to the stdin file of the shell and wakes up
+the shell from the READY state to RUNNING. The shell reads the new keystroke
+character from the stdin file, saves it in the memory and prints it to the
+stdout.
+When we writing in the shell the command 'kill <pid>' and execute it, the kill
+command sends the signal SIGTERM to the program with the ID <pid>. The program,
+if it has no special handler for the signal, terminates. The signal is sent by
+the syscall 'kill(<pid>, SIGTERM)'.
+
+Question 4
+-----------
+'Real' time counts the real-time of the computer (how much time has passed in
+reality). 'Virtual' time count the time that passed when the process runs in
+user-mode (and not the time that the process was BLOCK or the time that the OS
+has done thing for the process).
+In 'Timer' application, when we want for example to inform the user about a
+minute that passed, we will use the 'real' time. But when we implement
+user-level threads, like in the exercise, and want to divide the time that the
+process actually runs between all the threads, we will use 'virtual' time.
+
