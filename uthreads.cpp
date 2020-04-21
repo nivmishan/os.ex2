@@ -79,13 +79,17 @@ int running_uthread_tid;
 
 // hold the quantum_usecs for each priority
 int* priorities_quantum_usecs;
+int priorities_size;
 
 // the count of the total quantums from library initialization
 int total_quantum_count;
 
+// {SIGVTALRM} set
+sigset_t set_sigvtalrm;
+
 /* Prints error to stderr by the given message and error type*/
 void print_error(const char *msg, error_type type) {
-    std::cout << "print_error\n";
+    // std::cout << "print_error\n";
     if (type == SYS_ERR)
         std::cerr << "system error: ";
     else if (type == LIB_ERR)
@@ -99,42 +103,55 @@ void print_error(const char *msg, error_type type) {
  * Return value: On success, return the smallest free ID.
  * On failure, return -1.*/
 int get_free_tid() {
-    std::cout << "get_free_tid\n";
+    // std::cout << "get_free_tid\n";
     for (int i=0; i < MAX_THREAD_NUM; ++i)
         if (existing_threads[i] == nullptr)
             return i;
     return -1;
 }
 
-/* Decrease quantum count of given thread */
-void decrease_quantum_count(int tid) {
-    std::cout << "decrease_quantum_count\n";
-    existing_threads[tid]->quantum_count++;
-    total_quantum_count++;
+/* Check if priority is in range, and print error if not.
+ * Returns true if there is an error, and false otherwise */
+bool check_priority_range_error(int priority) {
+    if (priority < 0 && priority >= priorities_size) {
+        print_error("given priority is out of range", LIB_ERR);
+        return true;
+    } else
+        return false;
 }
 
 /* Returns true if thread with the given ID as tid exist */
 bool is_uthread_exist(int tid) {
-    std::cout << "is_uthread_exist\n";
+    // std::cout << "is_uthread_exist\n";
     return existing_threads[tid] != nullptr;
+}
+
+/* Check if ID exist, and print error if not.
+ * Returns true if there is an error, and false otherwise */
+bool check_tid_existence_error(int tid) {
+    if (!is_uthread_exist(tid)) {
+        print_error("thread with the given ID doesn't exist", LIB_ERR);
+        return true;
+    } else
+        return false;
 }
 
 /* insert ID from ready queue by given tid */
 void push_to_ready_queue(int tid) {
-    std::cout << "push_to_ready_queue\n";
+    // std::cout << "push_to_ready_queue\n";
     ready_queue.push_back(tid);
 }
 
 /* Remove ID from ready queue by given tid */
 void remove_from_ready_queue(int tid) {
-    std::cout << "remove_from_ready_queue\n";
+    // std::cout << "remove_from_ready_queue\n";
     ready_queue.erase(std::remove(ready_queue.begin(), ready_queue.end(), tid),
                       ready_queue.end());
 }
 
 /* Pop and return the front of the ready queue */
 int pop_from_ready_queue() {
-    std::cout << "pop_from_ready_queue\n";
+    // std::cout << "pop_from_ready_queue\n";
     int val = ready_queue.front();
     ready_queue.pop_front();
     return val;
@@ -142,12 +159,12 @@ int pop_from_ready_queue() {
 
 /* Return true if ready queue is empty, false otherwise */
 bool is_ready_queue_empty() {
-    std::cout << "is_ready_queue_empty\n";
+    // std::cout << "is_ready_queue_empty\n";
     return ready_queue.empty();
 }
 
 void start_quantum_timer(uthread_instance_ptr ut) {
-    std::cout << "start_quantum_timer\n";
+    // std::cout << "start_quantum_timer\n";
 
     // Timer for the scheduler
     struct itimerval timer = {0};
@@ -159,13 +176,14 @@ void start_quantum_timer(uthread_instance_ptr ut) {
     if (setitimer(ITIMER_VIRTUAL, &timer, nullptr))
         print_error("setitimer error", SYS_ERR);
 
-    // jump to next thread
-    decrease_quantum_count(ut->tid);
+    // decrease quantum count of given thread
+    existing_threads[ut->tid]->quantum_count++;
+    total_quantum_count++;
 }
 
 /* If ready queue isn't empty run the next ready thread. */
 void run_next_ready_thread() {
-    std::cout << "run_next_ready_thread\n";
+    // std::cout << "run_next_ready_thread\n";
     int next_tid;
     uthread_instance_ptr ut;
 
@@ -182,7 +200,7 @@ void run_next_ready_thread() {
 
         start_quantum_timer(ut);
 
-        std::cout << "ut(" << ut->tid << ")\n";
+        // std::cout << "ut(" << ut->tid << ")\n";
         siglongjmp(ut->env, JMP_RET_VAL);
     } else {
         // continue running thread run
@@ -195,26 +213,19 @@ void run_next_ready_thread() {
  * queue the running thread and push the running thread to
  * the end of the ready queue */
 void uthread_timing_scheduler(int sig) {
-    std::cout << "uthread_timing_scheduler\n";
+    // std::cout << "uthread_timing_scheduler\n";
     uthread_instance_ptr ut;
+
+    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
 
     ut = existing_threads[running_uthread_tid];
     ut->state = READY;
     push_to_ready_queue(ut->tid);
+
+    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
+
     if (sigsetjmp(ut->env, 1) == 0)
         run_next_ready_thread();
-}
-
-/* Terminates the running uthread */
-void terminate_running_thread(int sig) {
-    std::cout << "terminate_running_thread\n";
-    uthread_terminate(running_uthread_tid);
-}
-
-/* Block the running uthread */
-void block_running_thread(int sig) {
-    std::cout << "block_running_thread\n";
-    uthread_block(running_uthread_tid);
 }
 
 
@@ -228,7 +239,7 @@ void block_running_thread(int sig) {
  * Return value: On success, return 0. On failure, return -1.
 */
 int uthread_init(int *quantum_usecs, int size) {
-    std::cout << "uthread_init\n";
+    // std::cout << "uthread_init\n";
     struct sigaction sa = {0};
     uthread_instance_ptr ut;
 
@@ -242,24 +253,14 @@ int uthread_init(int *quantum_usecs, int size) {
 
     // save quantum usecs
     priorities_quantum_usecs = quantum_usecs;
+    priorities_size = size;
+
+    // create {SIGVTALRM} set
+    sigemptyset(&set_sigvtalrm);
+    sigaddset(&set_sigvtalrm, SIGVTALRM);
 
     // mask all signalexits
-    sigfillset(&sa.sa_mask);
-
-    // connect signals to terminate_running_thread
-    sa.sa_handler = &terminate_running_thread;
-    if (sigaction(SIGINT, &sa,nullptr) < 0) {
-        print_error("sigaction error", SYS_ERR);
-    }
-    if (sigaction(SIGQUIT, &sa,nullptr) < 0) {
-        print_error("sigaction error", SYS_ERR);
-    }
-
-    // connect signals to terminate_running_thread
-    sa.sa_handler = &block_running_thread;
-    if (sigaction(SIGTSTP, &sa,nullptr) < 0) {
-        print_error("sigaction error", SYS_ERR);
-    }
+    sigfillset(&sa.sa_mask); // TODO: check if there is a problem
 
     // connect signals to terminate_running_thread
     sa.sa_handler = &uthread_timing_scheduler;
@@ -309,15 +310,16 @@ int uthread_init(int *quantum_usecs, int size) {
  * On failure, return -1.
 */
 int uthread_spawn(void (*f)(void), int priority) {
-    std::cout << "uthread_spawn\n";
+    // std::cout << "uthread_spawn\n";
 
     int tid;
     address_t sp, pc;
     uthread_instance_ptr ut;
 
-    sigset_t set, oldset;
-    sigfillset(&set);
-    sigprocmask(SIG_SETMASK, &set, &oldset);
+    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
+
+    if (check_priority_range_error(priority))
+        return -1;
 
     // check if threads amount is over the limit
     tid = get_free_tid();
@@ -355,9 +357,9 @@ int uthread_spawn(void (*f)(void), int priority) {
     existing_threads[ut->tid] = ut; // add to existing threads
     push_to_ready_queue(ut->tid); // inert to ready queue
 
-    sigprocmask(SIG_SETMASK, &oldset, nullptr);
+    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
 
-    return 0;
+    return ut->tid;
 }
 
 /*
@@ -367,12 +369,20 @@ int uthread_spawn(void (*f)(void), int priority) {
  * Return value: On success, return 0. On failure, return -1.
 */
 int uthread_change_priority(int tid, int priority) {
-    std::cout << "uthread_change_priority\n";
-    if (!is_uthread_exist(tid)) {
-        print_error("thread with the given ID doesn't exist", LIB_ERR);
+    // std::cout << "uthread_change_priority\n";
+
+    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
+
+    if (check_tid_existence_error(tid))
         return -1;
-    }
+
+    if (check_priority_range_error(priority))
+        return -1;
+
     existing_threads[tid]->priority = priority;
+
+    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
+
     return 0;
 }
 
@@ -388,16 +398,12 @@ int uthread_change_priority(int tid, int priority) {
  * thread is terminated, the function does not return.
 */
 int uthread_terminate(int tid) {
-    std::cout << "uthread_terminate\n";
+    // std::cout << "uthread_terminate\n";
 
-    sigset_t set, oldset;
-    sigfillset(&set);
-    sigprocmask(SIG_SETMASK, &set, &oldset);
+    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
 
-    if (!is_uthread_exist(tid)) {
-        print_error("thread with the given ID doesn't exist", LIB_ERR);
+    if (check_tid_existence_error(tid))
         return -1;
-    }
 
     // if thread is main thread - kill all other threads
     if (tid == 0) {
@@ -421,11 +427,11 @@ int uthread_terminate(int tid) {
     if (state == READY)
         remove_from_ready_queue(tid);
 
+    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
+
     // if thread state was running then run the next ready thread
     if (state == RUNNING)
         run_next_ready_thread();
-
-    sigprocmask(SIG_SETMASK, &oldset, nullptr);
 
     return 0;
 }
@@ -441,20 +447,17 @@ int uthread_terminate(int tid) {
  * Return value: On success, return 0. On failure, return -1.
 */
 int uthread_block(int tid) {
-    std::cout << "uthread_block\n";
+    // std::cout << "uthread_block\n";
 
-    sigset_t set, oldset;
-    sigfillset(&set);
-    sigprocmask(SIG_SETMASK, &set, &oldset);
+    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
 
     if (tid == 0) {
         print_error("can't block main thread!", LIB_ERR);
         return -1;
     }
-    if (!is_uthread_exist(tid)) {
-        print_error("thread with the given ID doesn't exist", LIB_ERR);
+
+    if (check_tid_existence_error(tid))
         return -1;
-    }
 
     uthread_instance_ptr ut = existing_threads[tid]; // uthread instance
     uthread_state old_state = ut->state; // old thread ID
@@ -466,12 +469,12 @@ int uthread_block(int tid) {
     if (old_state == READY)
         remove_from_ready_queue(tid);
 
+    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
+
     // if the current running thread is blocked save its environment
     if (old_state == RUNNING)
         if (sigsetjmp(ut->env, 1) == 0)
             run_next_ready_thread();
-
-    sigprocmask(SIG_SETMASK, &oldset, nullptr);
 
     return 0;
 }
@@ -485,16 +488,12 @@ int uthread_block(int tid) {
  * Return value: On success, return 0. On failure, return -1.
 */
 int uthread_resume(int tid){
-    std::cout << "uthread_resume\n";
+    // std::cout << "uthread_resume\n";
 
-    sigset_t set, oldset;
-    sigfillset(&set);
-    sigprocmask(SIG_SETMASK, &set, &oldset);
+    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
 
-    if (!is_uthread_exist(tid)) {
-        print_error("thread with the given ID doesn't exist", LIB_ERR);
+    if (check_tid_existence_error(tid))
         return -1;
-    }
 
     uthread_instance_ptr ut = existing_threads[tid]; // uthread instance
 
@@ -504,7 +503,7 @@ int uthread_resume(int tid){
         push_to_ready_queue(tid);
     }
 
-    sigprocmask(SIG_SETMASK, &oldset, nullptr);
+    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
     return 0;
 }
 
@@ -514,7 +513,7 @@ int uthread_resume(int tid){
  * Return value: The ID of the calling thread.
 */
 int uthread_get_tid() {
-    std::cout << "uthread_get_tid\n";
+    // std::cout << "uthread_get_tid\n";
     return running_uthread_tid;
 }
 
@@ -528,7 +527,7 @@ int uthread_get_tid() {
  * Return value: The total number of quantums.
 */
 int uthread_get_total_quantums() {
-    std::cout << "uthread_get_total_quantums\n";
+    // std::cout << "uthread_get_total_quantums\n";
     return total_quantum_count;
 }
 
@@ -544,10 +543,18 @@ int uthread_get_total_quantums() {
  * 			     On failure, return -1.
 */
 int uthread_get_quantums(int tid) {
-    std::cout << "uthread_get_quantums\n";
-    if (!is_uthread_exist(tid)) {
-        print_error("thread with the given ID doesn't exist", LIB_ERR);
+    // std::cout << "uthread_get_quantums\n";
+
+    int quantums;
+
+    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
+
+    if (check_tid_existence_error(tid))
         return -1;
-    }
-    return existing_threads[tid]->quantum_count;
+
+    quantums = existing_threads[tid]->quantum_count;
+
+    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
+
+    return quantums;
 }

@@ -10,6 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cd6b1afd-eea0-4546-893f-9429954e78c0" name="Default Changelist" comment="">
+<<<<<<< Updated upstream
       <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
@@ -43,6 +44,22 @@
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/os_ex2.dir/progress.make" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/os_ex2.dir/uthreads.cpp.o" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/progress.marks" beforeDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/os_ex2.dir/CXX.includecache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/os_ex2.dir/depend.internal" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/os_ex2.dir/depend.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/os_ex2.dir/depend.make" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/os_ex2.dir/main.cpp.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/os_ex2.dir/uthreads.cpp.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/os_ex2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/uthreads.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/uthreads.cpp" afterDir="false" />
+>>>>>>> Stashed changes
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,9 +103,15 @@
       <updated>1586688350486</updated>
       <workItem from="1586688354818" duration="12512000" />
       <workItem from="1586702375966" duration="2023000" />
+<<<<<<< Updated upstream
       <workItem from="1586710546767" duration="18087000" />
       <workItem from="1587113635310" duration="936000" />
       <workItem from="1587120833086" duration="484000" />
+=======
+      <workItem from="1586710546767" duration="18220000" />
+      <workItem from="1587483458462" duration="8880000" />
+      <workItem from="1587493364408" duration="115000" />
+>>>>>>> Stashed changes
     </task>
     <servers />
   </component>
@@ -100,25 +123,30 @@
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
     <state x="281" y="233" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.31.1920.1049@0.31.1920.1049" timestamp="1586697656472" />
+    <state x="648" y="361" width="623" height="397" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1587493518766">
+      <screen x="0" y="31" width="1920" height="1049" />
+    </state>
+    <state x="648" y="361" width="623" height="397" key="#com.intellij.fileTypes.FileTypeChooser/0.31.1920.1049@0.31.1920.1049" timestamp="1587493518766" />
     <state x="693" y="306" width="534" height="507" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1586689574213">
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
     <state x="693" y="306" width="534" height="507" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.31.1920.1049@0.31.1920.1049" timestamp="1586689574213" />
-    <state width="1872" height="275" key="GridCell.Tab.0.bottom" timestamp="1586726889228">
+    <state width="902" height="275" key="GridCell.Tab.0.bottom" timestamp="1586730834770">
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
-    <state width="1872" height="275" key="GridCell.Tab.0.bottom/0.31.1920.1049@0.31.1920.1049" timestamp="1586726889228" />
-    <state width="1872" height="275" key="GridCell.Tab.0.center" timestamp="1586726889223">
+    <state width="902" height="275" key="GridCell.Tab.0.bottom/0.31.1920.1049@0.31.1920.1049" timestamp="1586730834770" />
+    <state width="902" height="275" key="GridCell.Tab.0.center" timestamp="1586730834769">
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
-    <state width="1872" height="275" key="GridCell.Tab.0.center/0.31.1920.1049@0.31.1920.1049" timestamp="1586726889223" />
-    <state width="1872" height="275" key="GridCell.Tab.0.left" timestamp="1586726889222">
+    <state width="902" height="275" key="GridCell.Tab.0.center/0.31.1920.1049@0.31.1920.1049" timestamp="1586730834769" />
+    <state width="902" height="275" key="GridCell.Tab.0.left" timestamp="1586730834767">
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
-    <state width="1872" height="275" key="GridCell.Tab.0.left/0.31.1920.1049@0.31.1920.1049" timestamp="1586726889222" />
-    <state width="1872" height="275" key="GridCell.Tab.0.right" timestamp="1586726889223">
+    <state width="902" height="275" key="GridCell.Tab.0.left/0.31.1920.1049@0.31.1920.1049" timestamp="1586730834767" />
+    <state width="902" height="275" key="GridCell.Tab.0.right" timestamp="1586730834770">
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
+<<<<<<< Updated upstream
     <state width="1872" height="275" key="GridCell.Tab.0.right/0.31.1920.1049@0.31.1920.1049" timestamp="1586726889223" />
     <state x="555" y="95" key="SettingsEditor" timestamp="1587121135821">
       <screen x="0" y="40" width="1536" height="824" />
@@ -129,6 +157,13 @@
     </state>
     <state x="607" y="385" key="com.intellij.ide.util.TipDialog/0.31.1920.1049@0.31.1920.1049" timestamp="1586702377249" />
     <state x="486" y="318" key="com.intellij.ide.util.TipDialog/0.40.1536.824@0.40.1536.824" timestamp="1587120833213" />
+=======
+    <state width="902" height="275" key="GridCell.Tab.0.right/0.31.1920.1049@0.31.1920.1049" timestamp="1586730834770" />
+    <state x="607" y="385" key="com.intellij.ide.util.TipDialog" timestamp="1587493366038">
+      <screen x="0" y="31" width="1920" height="1049" />
+    </state>
+    <state x="607" y="385" key="com.intellij.ide.util.TipDialog/0.31.1920.1049@0.31.1920.1049" timestamp="1587493366038" />
+>>>>>>> Stashed changes
     <state x="623" y="263" width="672" height="678" key="search.everywhere.popup" timestamp="1586728655699">
       <screen x="0" y="31" width="1920" height="1049" />
     </state>
