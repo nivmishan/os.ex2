@@ -1,18 +1,6 @@
-<<<<<<< Updated upstream
-C:\Users\PC\.CLion2019.3\system\cygwin_cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" "\"C:/Users/PC/Google Drive/חבצ/סמסטר ד/OS/ex2\""
-CMake Error: The source directory "/cygdrive/c/Users/PC/Google Drive/׳—׳‘׳¦/׳¡׳�׳¡׳˜׳¨ ׳“/OS/ex2/cmake-build-debug/"/"C:/Users/PC/Google Drive/׳—׳‘׳¦/׳¡׳�׳¡׳˜׳¨ ׳“/OS/ex2/""" does not exist.
-Specify --help for usage, or press the help button on the CMake GUI.
-
-CMake Error:
-  ------------------------------------------------------------------------------------
-  Selected CMake might be incompatible with the Cygwin environment.
-  In order to run on Cygwin, CMake needs to be specially compiled.
-  Please select either CMake bundled with CLion or CMake from the Cygwin installation.
-  ------------------------------------------------------------------------------------
-=======
-/opt/clion-2019.3.5/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/kali/university/os/os.ex2
--- The C compiler identification is GNU 9.2.1
--- The CXX compiler identification is GNU 9.2.1
+/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /cs/usr/nivmishan/ex2
+-- The C compiler identification is GNU 8.3.0
+-- The CXX compiler identification is GNU 8.3.0
 -- Check for working C compiler: /usr/bin/cc
 -- Check for working C compiler: /usr/bin/cc -- works
 -- Detecting C compiler ABI info
@@ -27,5 +15,25 @@ CMake Error:
 -- Detecting CXX compile features - done
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/kali/university/os/os.ex2/cmake-build-debug
->>>>>>> Stashed changes
+-- Build files have been written to: /cs/usr/nivmishan/ex2/cmake-build-debug/tests/googletest-download
+[ 11%] Performing update step for 'googletest'
+Current branch master is up to date.
+[ 22%] No configure step for 'googletest'
+[ 33%] No build step for 'googletest'
+[ 44%] No install step for 'googletest'
+[ 55%] No test step for 'googletest'
+[ 66%] Completed 'googletest'
+[100%] Built target googletest
+-- Found PythonInterp: /usr/bin/python (found version "2.7.16") 
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Looking for pthread_create
+-- Looking for pthread_create - not found
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /cs/usr/nivmishan/ex2/cmake-build-debug

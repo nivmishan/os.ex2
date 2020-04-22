@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" showNewOnTargetInSync="false">
+    <serverData>
+      <paths name="Remote Host (6ae347e4-acb4-4ada-abc3-c75687898f7a)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/cs/usr/nivmishan/ex2" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

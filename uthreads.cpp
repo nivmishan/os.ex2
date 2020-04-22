@@ -252,6 +252,12 @@ int uthread_init(int *quantum_usecs, int size) {
     struct sigaction sa = {0};
     uthread_instance_ptr ut;
 
+    // check if size is valid
+    if (size <= 0) {
+        print_error("quantum_usecs is invalid", LIB_ERR);
+        return -1;
+    }
+
     // check if all quantum usecs contain non-positive integers
     for (int i=0; i<size; ++i) {
         if (quantum_usecs[i] <= 0) {
