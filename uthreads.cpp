@@ -136,6 +136,13 @@ bool check_tid_existence_error(int tid) {
         return false;
 }
 
+void safe_sigvalrm_masking(int how) {
+    if (sigprocmask(how, &set_sigvtalrm, nullptr) == -1) {
+        print_error("sigprocmask() error", SYS_ERR);
+        exit(1);
+    }
+}
+
 /* insert ID from ready queue by given tid */
 void push_to_ready_queue(int tid) {
     // std::cout << "push_to_ready_queue\n";
@@ -173,8 +180,10 @@ void start_quantum_timer(uthread_instance_ptr ut) {
     timer.it_value.tv_usec = priorities_quantum_usecs[ut->priority];
 
     // start a virtual timer
-    if (setitimer(ITIMER_VIRTUAL, &timer, nullptr))
-        print_error("setitimer error", SYS_ERR);
+    if (setitimer(ITIMER_VIRTUAL, &timer, nullptr)) {
+        print_error("setitimer() error", SYS_ERR);
+        exit(1);
+    }
 
     // decrease quantum count of given thread
     existing_threads[ut->tid]->quantum_count++;
@@ -216,13 +225,13 @@ void uthread_timing_scheduler(int sig) {
     // std::cout << "uthread_timing_scheduler\n";
     uthread_instance_ptr ut;
 
-    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_BLOCK);
 
     ut = existing_threads[running_uthread_tid];
     ut->state = READY;
     push_to_ready_queue(ut->tid);
 
-    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_UNBLOCK);
 
     if (sigsetjmp(ut->env, 1) == 0)
         run_next_ready_thread();
@@ -256,16 +265,26 @@ int uthread_init(int *quantum_usecs, int size) {
     priorities_size = size;
 
     // create {SIGVTALRM} set
-    sigemptyset(&set_sigvtalrm);
-    sigaddset(&set_sigvtalrm, SIGVTALRM);
+    if (sigemptyset(&set_sigvtalrm) == -1) {
+        print_error("sigemptyset() error", SYS_ERR);
+        exit(1);
+    }
+    if (sigaddset(&set_sigvtalrm, SIGVTALRM) == -1) {
+        print_error("sigaddset() error", SYS_ERR);
+        exit(1);
+    }
 
     // mask all signalexits
-    sigfillset(&sa.sa_mask); // TODO: check if there is a problem
+    if (sigfillset(&sa.sa_mask) == -1) { // TODO: check if there is a problem
+        print_error("sigfillset() error", SYS_ERR);
+        exit(1);
+    }
 
     // connect signals to terminate_running_thread
     sa.sa_handler = &uthread_timing_scheduler;
     if (sigaction(SIGVTALRM, &sa,nullptr) < 0) {
         print_error("sigaction error", SYS_ERR);
+        exit(1);
     }
 
     // save main thread
@@ -273,7 +292,7 @@ int uthread_init(int *quantum_usecs, int size) {
     ut = new (std::nothrow) uthread_instance;
     if (ut == nullptr) {
         print_error("can't allocate new memory.", SYS_ERR);
-        return -1;
+        exit(1);
     }
 
     // initialize tid
@@ -316,7 +335,7 @@ int uthread_spawn(void (*f)(void), int priority) {
     address_t sp, pc;
     uthread_instance_ptr ut;
 
-    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_BLOCK);
 
     if (check_priority_range_error(priority))
         return -1;
@@ -332,7 +351,7 @@ int uthread_spawn(void (*f)(void), int priority) {
     ut = new (std::nothrow) uthread_instance;
     if (ut == nullptr) {
         print_error("can't allocate new memory.", SYS_ERR);
-        return -1;
+        exit(1);
     }
 
     // initialize tid
@@ -357,7 +376,7 @@ int uthread_spawn(void (*f)(void), int priority) {
     existing_threads[ut->tid] = ut; // add to existing threads
     push_to_ready_queue(ut->tid); // inert to ready queue
 
-    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_UNBLOCK);
 
     return ut->tid;
 }
@@ -371,7 +390,7 @@ int uthread_spawn(void (*f)(void), int priority) {
 int uthread_change_priority(int tid, int priority) {
     // std::cout << "uthread_change_priority\n";
 
-    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_BLOCK);
 
     if (check_tid_existence_error(tid))
         return -1;
@@ -381,7 +400,7 @@ int uthread_change_priority(int tid, int priority) {
 
     existing_threads[tid]->priority = priority;
 
-    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_UNBLOCK);
 
     return 0;
 }
@@ -400,7 +419,7 @@ int uthread_change_priority(int tid, int priority) {
 int uthread_terminate(int tid) {
     // std::cout << "uthread_terminate\n";
 
-    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_BLOCK);
 
     if (check_tid_existence_error(tid))
         return -1;
@@ -427,7 +446,7 @@ int uthread_terminate(int tid) {
     if (state == READY)
         remove_from_ready_queue(tid);
 
-    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_UNBLOCK);
 
     // if thread state was running then run the next ready thread
     if (state == RUNNING)
@@ -449,7 +468,7 @@ int uthread_terminate(int tid) {
 int uthread_block(int tid) {
     // std::cout << "uthread_block\n";
 
-    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_BLOCK);
 
     if (tid == 0) {
         print_error("can't block main thread!", LIB_ERR);
@@ -469,7 +488,7 @@ int uthread_block(int tid) {
     if (old_state == READY)
         remove_from_ready_queue(tid);
 
-    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_UNBLOCK);
 
     // if the current running thread is blocked save its environment
     if (old_state == RUNNING)
@@ -490,7 +509,7 @@ int uthread_block(int tid) {
 int uthread_resume(int tid){
     // std::cout << "uthread_resume\n";
 
-    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_BLOCK);
 
     if (check_tid_existence_error(tid))
         return -1;
@@ -503,7 +522,7 @@ int uthread_resume(int tid){
         push_to_ready_queue(tid);
     }
 
-    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_UNBLOCK);
     return 0;
 }
 
@@ -547,14 +566,14 @@ int uthread_get_quantums(int tid) {
 
     int quantums;
 
-    sigprocmask(SIG_BLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_BLOCK);
 
     if (check_tid_existence_error(tid))
         return -1;
 
     quantums = existing_threads[tid]->quantum_count;
 
-    sigprocmask(SIG_UNBLOCK, &set_sigvtalrm, nullptr);
+    safe_sigvalrm_masking(SIG_UNBLOCK);
 
     return quantums;
 }
