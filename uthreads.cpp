@@ -87,6 +87,19 @@ int total_quantum_count;
 // {SIGVTALRM} set
 sigset_t set_sigvtalrm;
 
+/* Returns true if thread with the given ID as tid exist */
+bool is_uthread_exist(int tid) {
+    // std::cout << "is_uthread_exist\n";
+    return existing_threads[tid] != nullptr;
+}
+
+void safe_exit(int code) {
+    for (int i=1; i<MAX_THREAD_NUM; ++i)
+        if (is_uthread_exist(i))
+            delete existing_threads[i];
+    exit(code);
+}
+
 /* Prints error to stderr by the given message and error type*/
 void print_error(const char *msg, error_type type) {
     // std::cout << "print_error\n";
@@ -120,12 +133,6 @@ bool check_priority_range_error(int priority) {
         return false;
 }
 
-/* Returns true if thread with the given ID as tid exist */
-bool is_uthread_exist(int tid) {
-    // std::cout << "is_uthread_exist\n";
-    return existing_threads[tid] != nullptr;
-}
-
 /* Check if ID exist, and print error if not.
  * Returns true if there is an error, and false otherwise */
 bool check_tid_existence_error(int tid) {
@@ -139,7 +146,7 @@ bool check_tid_existence_error(int tid) {
 void safe_sigvalrm_masking(int how) {
     if (sigprocmask(how, &set_sigvtalrm, nullptr) == -1) {
         print_error("sigprocmask() error", SYS_ERR);
-        exit(1);
+        safe_exit(1);
     }
 }
 
@@ -182,7 +189,7 @@ void start_quantum_timer(uthread_instance_ptr ut) {
     // start a virtual timer
     if (setitimer(ITIMER_VIRTUAL, &timer, nullptr)) {
         print_error("setitimer() error", SYS_ERR);
-        exit(1);
+        safe_exit(1);
     }
 
     // decrease quantum count of given thread
@@ -273,24 +280,24 @@ int uthread_init(int *quantum_usecs, int size) {
     // create {SIGVTALRM} set
     if (sigemptyset(&set_sigvtalrm) == -1) {
         print_error("sigemptyset() error", SYS_ERR);
-        exit(1);
+        safe_exit(1);
     }
     if (sigaddset(&set_sigvtalrm, SIGVTALRM) == -1) {
         print_error("sigaddset() error", SYS_ERR);
-        exit(1);
+        safe_exit(1);
     }
 
-    // mask all signalexits
-    if (sigfillset(&sa.sa_mask) == -1) { // TODO: check if there is a problem
+    // mask all signalsafe_exits
+    if (sigfillset(&sa.sa_mask) == -1) {
         print_error("sigfillset() error", SYS_ERR);
-        exit(1);
+        safe_exit(1);
     }
 
     // connect signals to terminate_running_thread
     sa.sa_handler = &uthread_timing_scheduler;
     if (sigaction(SIGVTALRM, &sa,nullptr) < 0) {
         print_error("sigaction error", SYS_ERR);
-        exit(1);
+        safe_exit(1);
     }
 
     // save main thread
@@ -298,7 +305,7 @@ int uthread_init(int *quantum_usecs, int size) {
     ut = new (std::nothrow) uthread_instance;
     if (ut == nullptr) {
         print_error("can't allocate new memory.", SYS_ERR);
-        exit(1);
+        safe_exit(1);
     }
 
     // initialize tid
@@ -357,7 +364,7 @@ int uthread_spawn(void (*f)(void), int priority) {
     ut = new (std::nothrow) uthread_instance;
     if (ut == nullptr) {
         print_error("can't allocate new memory.", SYS_ERR);
-        exit(1);
+        safe_exit(1);
     }
 
     // initialize tid
@@ -417,7 +424,7 @@ int uthread_change_priority(int tid, int priority) {
  * the library for this thread should be released. If no thread with ID tid
  * exists it is considered an error. Terminating the main thread
  * (tid == 0) will result in the termination of the entire process using
- * exit(0) [after releasing the assigned library memory].
+ * safe_exit(0) [after releasing the assigned library memory].
  * Return value: The function returns 0 if the thread was successfully
  * terminated and -1 otherwise. If a thread terminates itself or the main
  * thread is terminated, the function does not return.
@@ -430,23 +437,16 @@ int uthread_terminate(int tid) {
     if (check_tid_existence_error(tid))
         return -1;
 
-    // if thread is main thread - kill all other threads
-    if (tid == 0) {
-        for (int i=1; i<MAX_THREAD_NUM; ++i)
-            if (is_uthread_exist(i))
-                delete existing_threads[i];
-    }
-
     uthread_instance_ptr ut = existing_threads[tid]; // thread instance
     uthread_state state = ut->state; // thread state
+
+    // safe_exit if is main thread
+    if (tid == 0)
+        safe_exit(0);
 
     // delete allocated memory
     delete ut;
     existing_threads[tid] = nullptr;
-
-    // exit if is main thread
-    if (tid == 0)
-        exit(0);
 
     // check if thread is in ready queue
     if (state == READY)

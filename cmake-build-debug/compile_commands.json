@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/cs/usr/nivmishan/ex2/cmake-build-debug/tests",
+  "command": "/usr/bin/c++   -I/cs/usr/nivmishan/ex2/tests/.. -isystem /cs/usr/nivmishan/ex2/cmake-build-debug/tests/googletest-src/googletest/include -isystem /cs/usr/nivmishan/ex2/cmake-build-debug/tests/googletest-src/googletest  -g   -Wall -Wextra -std=gnu++11 -o CMakeFiles/theTests.dir/tests_to_be_ran_separately.cpp.o -c /cs/usr/nivmishan/ex2/tests/tests_to_be_ran_separately.cpp",
+  "file": "/cs/usr/nivmishan/ex2/tests/tests_to_be_ran_separately.cpp"
+}
+]
