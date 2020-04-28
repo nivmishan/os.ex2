@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/cs/usr/nivmishan/ex2/uthreads.cpp
+setjmp.h
+-
+signal.h
+-
+sys/time.h
+-
+deque
+-
+iostream
+-
+algorithm
+-
+uthreads.h
+/cs/usr/nivmishan/ex2/uthreads.h
+
+/cs/usr/nivmishan/ex2/uthreads.h
+

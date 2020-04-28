@@ -90,6 +90,8 @@ sigset_t set_sigvtalrm;
 /* Returns true if thread with the given ID as tid exist */
 bool is_uthread_exist(int tid) {
     // std::cout << "is_uthread_exist\n";
+    if (tid >= MAX_THREAD_NUM || tid < 0)
+        return false;
     return existing_threads[tid] != nullptr;
 }
 
@@ -296,7 +298,7 @@ int uthread_init(int *quantum_usecs, int size) {
     // connect signals to terminate_running_thread
     sa.sa_handler = &uthread_timing_scheduler;
     if (sigaction(SIGVTALRM, &sa,nullptr) < 0) {
-        print_error("sigaction error", SYS_ERR);
+        print_error("sigaction() error", SYS_ERR);
         safe_exit(1);
     }
 
